@@ -1,0 +1,31 @@
+services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: pass
+      MONGO_INITDB_DATABASE: database
+    networks:
+      - db
+    volumes:
+      - db_volume:/data/db
+  backend:
+    build: ./backend
+    environment:
+      MONGO_URI: mongodb://admin:pass@mongo:27017/database?authSource=admin&retryWrites=true&w=majority
+      DATABASE: database
+      COLLECTION: task
+    depends_on:
+      - mongo
+    networks:
+      - db
+    ports:
+      - "8000:8000"
+
+networks:
+  db:
+    driver: bridge
+
+volumes:
+  db_volume:

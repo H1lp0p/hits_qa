@@ -1,0 +1,8 @@
+FROM python:3.12
+RUN mkdir /backend
+WORKDIR /backend
+
+COPY . /backend
+RUN pip install --no-cache-dir -r modules.txt
+
+CMD [ "python", "main.py"]
