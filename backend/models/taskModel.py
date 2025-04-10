@@ -27,6 +27,6 @@ class Task(BaseModel):
     description: str
     deadline: Optional[datetime] = None
     create_time: datetime
-    redacted_time: datetime
+    redacted_time: Optional[datetime] = None
     status: TaskStatus = TaskStatus.active
     priority: TaskPriority = TaskPriority.medium

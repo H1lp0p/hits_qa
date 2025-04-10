@@ -1,18 +1,18 @@
-from datetime import datetime
+from datetime import date
 from typing import Optional
 
-from taskModel import TaskPriority
+from pydantic import BaseModel
 
-class CreateTaskModel:
+from models.taskModel import TaskPriority
+
+class CreateTaskModel(BaseModel):
     name: str
     description: Optional[str] = None
-    deadline: Optional[datetime] = None
-    create_time: datetime
-    redacted_time: datetime
+    deadline: Optional[date] = None
     priority: Optional[TaskPriority] = None
 
-class EditTaskModel:
+class EditTaskModel(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    deadline: Optional[datetime] = None
+    deadline: Optional[date] = None
     priority: Optional[TaskPriority] = None
