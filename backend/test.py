@@ -1,5 +1,12 @@
-from datetime import datetime
+from datetime import datetime, date
+from models.taskModel import Task
+from models.responseBodies import TaskInfo
+from middleware.mapper import Mapper
 
-test_date = datetime.today().date()
+fir = date.today()
 
-print(datetime.combine(test_date, datetime.min.time()))
+
+sec = date(day=12, month=4, year=2025)
+
+
+print(sec < fir)

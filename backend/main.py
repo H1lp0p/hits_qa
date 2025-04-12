@@ -8,10 +8,19 @@ from models import *
 
 from contextlib import asynccontextmanager
 
-MONGODB_URI = environ["MONGO_URI"]
-DATABASE = environ["DATABASE"]
-COLLECTION = environ["COLLECTION"]
+from sys import argv
 
+dev = len(argv) == 2 and argv[1] == "test"
+
+MONGODB_URI = "mongodb://admin:pass@localhost:27017/database?authSource=admin&retryWrites=true&w=majority"
+DATABASE = "database"
+COLLECTION = "task"
+
+if not dev:
+    MONGODB_URI = environ["MONGO_URI"]
+    DATABASE = environ["DATABASE"]
+    COLLECTION = environ["COLLECTION"]
+    
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,37 +29,36 @@ async def lifespan(app: FastAPI):
     try:    
         yield
     finally:
-        app.TaskRepository.close()
+        app.TasksRepository.close()
 
 
 app = FastAPI(lifespan=lifespan)
 
 
 @app.get(
-        "/"
-        )
-async def test():
-    list = await app.TasksRepository.get_all()
-    print(f"> list all:")
-    print(list)
-    return {"status": 200}
-
-
-@app.get(
-        "/tasks",
-        response_model=TaskList
-        )
+        "/tasks/all",
+        response_model=List[TaskInfo])
 async def get_all_tasks():
     result = await app.TasksRepository.get_all()
 
-    return result
+    print("TaskList", result)
+
+    taskList = [Mapper.to_info(item) for item in result]
+
+    tasks = taskList
+
+    return tasks
 
 
-@app.get("/tasks/list")
+@app.get(
+        "/tasks/list",
+        response_model=TaskList
+        )
 async def get_tasks_list(
-    priority_ordered: bool,
-    date_rodered: bool,
-    ordering_type: bool, #TODO: ordering enum
+    ordering: Ordering,
+    ordering_type: OrideringType,
+    page: int = 0,
+    page_size: int = 5, #TODO: ordering enum
 ):
     pass
 
@@ -63,19 +71,18 @@ async def get_task(id: str):
 
 
 @app.post(
-        "/tasks"
-        )
+        "/tasks",
+        response_model=TaskInfo)
 async def create_task(new_task: CreateTaskModel):
     task = await app.TasksRepository.create_task(new_task)
-    return task
+    return Mapper.to_info(task)
 
 
 @app.delete(
         "/task/{id}"
         )
 async def delete_task(id: str):
-    #TODO: test
-    result = app.TasksRepository.delete_task(id)
+    result = await app.TasksRepository.delete_task(id)
     return result
 
 

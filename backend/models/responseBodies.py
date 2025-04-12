@@ -8,19 +8,20 @@ from models.taskModel import TaskPriority, TaskStatus
 
 class Pagination(BaseModel):
     items_count: int
-    page: int
-    page_size: int
+    page: int = 0
+    page_size: int = 5
 
 
 class TaskInfo(BaseModel):
-    _id: str = None
+    id: str
     name: str
     description: str
     deadline: Optional[date] = None
     create_time: date
-    redacted_time: date
+    redacted_time: Optional[date] = None
     status: TaskStatus = TaskStatus.active
     priority: TaskPriority = TaskPriority.medium
+    done: bool
 
 
 class TaskList(BaseModel):
