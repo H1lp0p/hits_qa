@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import date
 from typing import Optional, List
 
-from models.taskModel import TaskPriority, TaskStatus
+from data.taskModel import TaskPriority, TaskStatus
 
 
 class Pagination(BaseModel):

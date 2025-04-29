@@ -4,13 +4,13 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from enum import Enum
 
-from models.taskModel import TaskPriority
+from data.taskModel import TaskPriority
 
 class Ordering(str, Enum):
     byPriority = "priority"
     byDeadline = "deadline"
 
-class OrideringType(str, Enum):
+class OrderingType(str, Enum):
     ascending = "asc"
     descending = "desc"
 
@@ -26,3 +26,4 @@ class EditTaskModel(BaseModel):
     description: Optional[str] = None
     deadline: Optional[date] = None
     priority: Optional[TaskPriority] = None
+    done: Optional[bool] = None

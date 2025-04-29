@@ -30,6 +30,5 @@ class Task(BaseModel):
     deadline: Optional[datetime] = None
     create_time: datetime
     redacted_time: Optional[datetime] = None
-    status: TaskStatus = TaskStatus.active
     priority: TaskPriority = TaskPriority.medium
     done: bool = False

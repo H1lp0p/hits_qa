@@ -1,6 +1,6 @@
 from datetime import datetime, date
-from models.taskModel import Task
-from models.responseBodies import TaskInfo
+from data.taskModel import Task
+from data.responseBodies import TaskInfo
 from middleware.mapper import Mapper
 
 fir = date.today()
