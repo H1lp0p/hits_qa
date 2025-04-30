@@ -49,8 +49,8 @@ async def get_all_tasks():
         response_model=TaskList
         )
 async def get_tasks_list(
-    ordering: Ordering,
-    ordering_type: OrderingType,
+    ordering: Ordering = Ordering.byPriority,
+    ordering_type: OrderingType = OrderingType.ascending,
     page: int = 1,
     page_size: int = 5,
 ):
@@ -117,5 +117,3 @@ if __name__ == "__main__":
             host="0.0.0.0", 
             port=8000,
         )
-
-#TODO: errors handling and custom errors
