@@ -1,9 +1,9 @@
 export enum Ordering{
-    priority,
-    deadlie,
+    priority = 'priority',
+    deadlie = "deadline",
 }
 
 export enum OrderingType{
-    asc,
-    desc,
+    asc = "asc",
+    desc = 'desc',
 }

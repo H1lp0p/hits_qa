@@ -23,14 +23,17 @@ export const loadData = createAsyncThunk(
     }
     , {rejectWithValue}) => {
         try{
+            console.log(task_list);
+            
             const response = await axios.get<TaskList>(task_list, {
                 params: {
-                    orderign: data.ordering,
+                    ordering: data.ordering,
                     ordering_type: data.orderingType,
                     page: data.page,
                     page_size: data.pageSize,
                 }
             })
+            console.log(task_list, "axios", response.data);
             return response.data
         }
         catch (error) {
@@ -56,7 +59,7 @@ export const createTask = createAsyncThunk(
     async (data: CreateTaskModel, {rejectWithValue}) => {
         try{
             const response = await axios.post<TaskInfo>(create_task, data)
-            return response
+            return response.data
         }
         catch (error) {
             if (axios.isAxiosError(error)){
@@ -68,6 +71,11 @@ export const createTask = createAsyncThunk(
                 rejectWithValue(er)
             }
         }
+        return rejectWithValue({
+            status: -1,
+            message: "internal Error",
+            payload: null,
+        })
     }
 )
 
@@ -79,7 +87,7 @@ export const editTask = createAsyncThunk(
                 single_task_actions(data.id),
                 data.editData
             )
-            return response
+            return response.data
         }
         catch (error) {
             if (axios.isAxiosError(error)){
@@ -90,7 +98,12 @@ export const editTask = createAsyncThunk(
                 }
                 rejectWithValue(er)
             }
-        }    
+        }
+        return rejectWithValue({
+            status: -1,
+            message: "internal Error",
+            payload: null,
+        })
     }
 )
 
@@ -101,7 +114,7 @@ export const deleteTask = createAsyncThunk(
             const response =  await axios.delete(
                 single_task_actions(data.id)
             )
-            return response
+            return response.data
         }
         catch (error) {
             if (axios.isAxiosError(error)){
@@ -113,5 +126,10 @@ export const deleteTask = createAsyncThunk(
                 rejectWithValue(er)
             }
         }
+        return rejectWithValue({
+            status: -1,
+            message: "internal Error",
+            payload: null,
+        })
     }
 )
