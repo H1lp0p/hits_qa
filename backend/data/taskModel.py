@@ -26,7 +26,7 @@ class TaskPriority(IntEnum):
 class Task(BaseModel):
     id: Optional[str] = Field(min_length=24, max_length=24, examples=["67fa7d39ec58e7ca2f74bd91"], alias="_id", default=None)
     name: str = Field(min_length=4)
-    description: str
+    description: Optional[str] = None
     deadline: Optional[datetime] = None
     create_time: datetime
     redacted_time: Optional[datetime] = None

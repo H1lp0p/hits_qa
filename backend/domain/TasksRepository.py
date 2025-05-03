@@ -109,7 +109,7 @@ class TasksRepository:
 
             result_priority = task.priority
             result_deadline = task.deadline
-
+            #TODO: smething strange with extracting priority and deadline from name
             if edit_data.name != None:
                 from_name_proiroty, from_name_deadline = self.format_task_name(edit_data.name)
                 

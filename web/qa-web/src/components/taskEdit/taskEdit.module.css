@@ -1,0 +1,19 @@
+.taskEdit{
+    width: 25em;
+    display: flex;
+    flex-direction: column;
+    justify-items: start;
+}
+
+input{
+    padding: 1em;
+    margin: .5em;
+    border-radius: 1em;
+}
+
+textarea{
+    padding: 1em;
+    margin: .5em;
+    border-radius: 1em;
+    max-width: 27em;
+}

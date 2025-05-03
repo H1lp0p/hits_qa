@@ -106,7 +106,7 @@ async def create_task(new_task: CreateTaskModel):
 
 
 @app.delete(
-        "/task/{id}"
+        "/tasks/{id}"
         )
 async def delete_task(id: str):
     result = await app.TasksRepository.delete_task(id)
@@ -114,7 +114,7 @@ async def delete_task(id: str):
 
 
 @app.put(
-        "/task/{id}",
+        "/tasks/{id}",
         response_model=TaskInfo
         )
 async def edit_task(id: str, edit_model: EditTaskModel):

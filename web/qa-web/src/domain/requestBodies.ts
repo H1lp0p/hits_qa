@@ -4,14 +4,14 @@ import { TaskPriority } from "../data/task"
 export interface CreateTaskModel{
     name: string
     description: string | null
-    deadline: Date | null
+    deadline: string | null
     priority: TaskPriority | null
 }
 
 export interface EditTaskModel{
     name: string | null,
     description: string | null
-    deadline: Date | null
+    deadline: string | null
     priority: TaskPriority | null,
     done: boolean | null,
 }

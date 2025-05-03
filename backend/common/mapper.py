@@ -5,15 +5,16 @@ class Mapper:
     @staticmethod
     def to_info(task: Task) -> TaskInfo:
 
-        current_status : TaskStatus = None
+        current_status : TaskStatus = TaskStatus.active
 
-        nowDate = date.today()
-        is_deadline_missed =  nowDate >= task.deadline.date()
-        
-        if task.done:
-            current_status = TaskStatus.late if is_deadline_missed else TaskStatus.completed
-        else:
-            current_status = TaskStatus.overdue if is_deadline_missed else TaskStatus.active
+        if (task.deadline != None):
+            nowDate = date.today()
+            is_deadline_missed =  nowDate >= task.deadline.date()
+            
+            if task.done:
+                current_status = TaskStatus.late if is_deadline_missed else TaskStatus.completed
+            else:
+                current_status = TaskStatus.overdue if is_deadline_missed else TaskStatus.active
 
         return TaskInfo(
             id=task.id,

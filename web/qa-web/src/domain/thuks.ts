@@ -23,8 +23,6 @@ export const loadData = createAsyncThunk(
     }
     , {rejectWithValue}) => {
         try{
-            console.log(task_list);
-            
             const response = await axios.get<TaskList>(task_list, {
                 params: {
                     ordering: data.ordering,
@@ -33,7 +31,6 @@ export const loadData = createAsyncThunk(
                     page_size: data.pageSize,
                 }
             })
-            console.log(task_list, "axios", response.data);
             return response.data
         }
         catch (error) {

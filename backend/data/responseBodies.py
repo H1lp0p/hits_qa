@@ -15,7 +15,7 @@ class Pagination(BaseModel):
 class TaskInfo(BaseModel):
     id: str
     name: str
-    description: str
+    description: Optional[str] = None
     deadline: Optional[date] = None
     create_time: date
     redacted_time: Optional[date] = None

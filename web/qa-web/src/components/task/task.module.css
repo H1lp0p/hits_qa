@@ -1,6 +1,39 @@
+:root{
+    --text-color: #282B28;
+    --task: #83BCA9;
+    --task-selected: #88b98e;
+    --task-warning: #A24936;
+    --task-warning-selected: #D36135; 
+}
+
 .task{
-    background-color: blueviolet;
+    user-select: none;
+    color: var(--text-color);
+    background-color: var(--task);
     padding: 1em;
     margin: 1em;
+    
+    width: 25em;
+
+    text-overflow: ellipsis;
+
+    display: flex;
+    flex-direction: column;
+    justify-items: start;
+
+    border: 4px solid var(--text-color);
     border-radius: 1em;
+}
+
+.selected{
+    background-color: var(--task-selected);
+    border-color: transparent;
+}
+
+button{
+    margin: .2em;
+}
+
+.fire{
+    background-color: var(--task-warning);
 }
