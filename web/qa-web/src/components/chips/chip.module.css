@@ -1,0 +1,8 @@
+.chip{
+    background-color: rgba(0, 0, 0, .5);
+    width: max-content;
+    padding: .5em;
+    color: rgb(199, 199, 199);
+    margin: .5em;
+    border-radius: 1em;
+}

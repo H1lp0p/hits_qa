@@ -52,6 +52,8 @@ export const slice = createSlice({
                 return accum
             }, {} as Record<string, TaskState>)
             state.pagination = action.payload.pagination
+            state.ordering = action.meta.arg.ordering
+            state.orderingType = action.meta.arg.orderingType
         })
         builder.addCase(loadData.rejected, (state, action) => {
             state.dataState = "error"

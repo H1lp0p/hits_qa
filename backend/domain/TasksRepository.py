@@ -113,6 +113,8 @@ class TasksRepository:
             if edit_data.name != None:
                 from_name_proiroty, from_name_deadline = self.format_task_name(edit_data.name)
                 
+                print(edit_data.name, from_name_proiroty, from_name_deadline)
+
                 if from_name_proiroty:
                     result_priority = from_name_proiroty
                 

@@ -2,8 +2,8 @@
     --text-color: #282B28;
     --task: #83BCA9;
     --task-selected: #88b98e;
-    --task-warning: #A24936;
-    --task-warning-selected: #D36135; 
+    --task-outdated: #A24936;
+    --task-fire: #D36135; 
 }
 
 .task{
@@ -34,6 +34,10 @@ button{
     margin: .2em;
 }
 
+.outdated{
+    background-color: var(--task-outdated);
+}
+
 .fire{
-    background-color: var(--task-warning);
+    background-color: var(--task-fire);
 }

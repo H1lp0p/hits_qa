@@ -20,11 +20,24 @@ services:
       - mongo
     networks:
       - db
+      - back
     ports:
       - "8000:8000"
+  front:
+    build: ./web/qa-web
+    depends_on:
+      - backend
+    networks:
+      - back
+    ports:
+    - "5173:5173"
+    environment:
+      - apiUrl=
 
 networks:
   db:
+    driver: bridge
+  back:
     driver: bridge
 
 volumes:

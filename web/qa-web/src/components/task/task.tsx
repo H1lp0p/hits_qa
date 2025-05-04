@@ -2,6 +2,9 @@ import { useSelector } from 'react-redux'
 import { TaskInfo } from '../../domain/resopnseBodies'
 import { State, StateType, TaskState } from '../../domain/store'
 import style from './task.module.css'
+import { DeadlineChip } from '../chips/deadlineChip'
+import { PriorityChip } from '../chips/priorityChip'
+import { StatusChip } from '../chips/statusChip'
 
 export interface TaskComponentProps{
     taskId?: string,
@@ -19,9 +22,14 @@ export const TaskComponent : React.FC<TaskComponentProps> = (props: TaskComponen
     const deadlineDate = deadline? new Date(deadline) : null
 
     var isFire = false
+    var outdated = false
     if (deadlineDate){
-        isFire = deadlineDate.getHours() - (new Date()).getHours() < 24 * 3
+        const diff = (deadlineDate.getTime() - (new Date()).getTime())
+        isFire = diff < 3 * 24 * 60 * 60 * 1000
+        outdated = diff < 0 && ! task!.task.done
     }
+
+    const colorClass = task?.task.done ? "" : (outdated ? style.outdated : (isFire ? style.fire : ""))  
 
     const select = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation()
@@ -30,16 +38,18 @@ export const TaskComponent : React.FC<TaskComponentProps> = (props: TaskComponen
     }
 
     return (
-        <div className={`${style.task} ${props.selected ? style.selected : ""} ${isFire ? style.fire : ""}`} onClick={select}>
+        <div className={`${style.task} ${props.selected ? style.selected : ""} ${colorClass}`} onClick={select}>
             <span>
                 {`${task?.task.name}`}
             </span>
             <span>
-                {`${task?.task.description ? task.task.description : "no description"}`}
+                {`${task?.task.description ? task.task.description : ""}`}
             </span>
-            {deadlineDate && <span>
-                {`to ${deadlineDate ? getDateString(deadlineDate): "no deadline"}`}
-            </span>}
+            <div style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
+                {task && <PriorityChip priority={task.task.priority}/>}
+                {task && <StatusChip status={task.task.status}/>}
+                {deadline && <DeadlineChip deadline={deadline}/>}
+            </div>
         </div>
     )
 }

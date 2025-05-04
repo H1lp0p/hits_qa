@@ -16,10 +16,10 @@ export const TaskContainer : React.FC = () => {
 
     const dispatch = useDispatch<AppDispatch>();
 
-    const load = (page: number = 1, page_size: number = 5, ordering = Ordering.priority, orderingType = OrderingType.asc) => {
+    const load = () => {
         dispatch(loadData({
-            page: page,
-            pageSize: page_size,
+            page: pagination.page,
+            pageSize: pagination.page_size,
             ordering: ordering,
             orderingType: orderingType
         }))
@@ -65,6 +65,24 @@ export const TaskContainer : React.FC = () => {
         }
     }
 
+    const togleOrdering = () => {
+        dispatch(loadData({
+            page: pagination.page,
+            pageSize: pagination.page_size,
+            ordering: ordering == Ordering.priority ? Ordering.deadlie : Ordering.priority,
+            orderingType: orderingType,
+        }))
+    }
+
+    const togleOrderingType = () => {
+        dispatch(loadData({
+            page: pagination.page,
+            pageSize: pagination.page_size,
+            ordering: ordering,
+            orderingType: orderingType == OrderingType.asc ? OrderingType.desc : OrderingType.asc,
+        }))
+    }
+
     const select = (id: string) => {
         setCurrentChoosedId(id == currentChoosedId ? null: id)
     }
@@ -75,12 +93,17 @@ export const TaskContainer : React.FC = () => {
         []
     )
 
+    const hasPrew = pagination.page > 1
+    const hasnext = pagination.items_count > pagination.page_size * pagination.page
+
     return (
         <div>
             <div>
-                <button onClick={() => prewPage()}>Prew</button>
+                <button onClick={() => prewPage()} disabled={!hasPrew}>Prew</button>
                 <span>{pagination.page}</span>
-                <button onClick={() => nextPage()}>Next</button>
+                <button onClick={() => nextPage()} disabled={!hasnext}>Next</button>
+                <button onClick={() => togleOrdering()}>{ordering == Ordering.priority ? "priority" : "deadline"}</button>
+                <button onClick={() => togleOrderingType()}>{orderingType == OrderingType.asc ? "asc" : "desc"}</button>
             </div>
             <div style={{display: "flex", flexDirection: "row"}}>
                 <div>
