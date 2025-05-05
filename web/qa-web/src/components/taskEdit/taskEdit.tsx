@@ -95,7 +95,7 @@ export const TaskEditComponent : React.FC<TaskEditComponentProps> = (props: Task
         }
         else{
             if (nameRef.current && descriptionRef.current && doneRef.current && priorityRef.current && deadlineRef.current){
-                newAllowed = nameRef.current.value.length > 4
+                newAllowed = nameRef.current.value.length >= 4
             }
         }
         setAllowed(newAllowed)
