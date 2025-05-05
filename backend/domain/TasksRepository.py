@@ -66,21 +66,22 @@ class TasksRepository:
 
         nowTime = date.today()
 
+        print("repo-create_task-new_task", new_task)
+
         from_name_proiroty, from_name_deadline = self.format_task_name(new_task.name)
 
-        result_priority = TaskPriority.medium
+        result_priority = from_name_proiroty if from_name_proiroty else TaskPriority.medium
 
-        result_deadline = datetime.combine(new_task.deadline, datetime.min.time()) if new_task.deadline else None
+        result_deadline = datetime.combine(from_name_deadline, datetime.min.time()) if from_name_deadline else None
 
         if new_task.priority:
             result_priority = new_task.priority
-        else:
-            if from_name_proiroty:
-                result_priority = from_name_proiroty
         
-        if from_name_deadline:
-            result_deadline = datetime.combine(from_name_deadline, datetime.min.time())
+        if new_task.deadline:
+            result_deadline = datetime.combine(new_task.deadline, datetime.min.time())
         
+        print("repo-create_task-from_name", from_name_proiroty, from_name_deadline)
+        print("repo-create_task-result", result_priority, result_deadline)
 
         task = Task(
             name=new_task.name,
@@ -129,7 +130,9 @@ class TasksRepository:
 
             await self.collection.replace_one({"_id": ObjectId(id)}, task.model_dump())
             
-            return Mapper.to_task(await self.collection.find_one({"_id": ObjectId(id)}))
+            result_data = await self.collection.find_one({"_id": ObjectId(id)})
+
+            return Mapper.to_task(result_data)
 
         else:
             raise TaskNotFound()
