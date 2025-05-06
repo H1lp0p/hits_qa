@@ -131,7 +131,7 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
             'name': 'Test task !2 !before 01.01.2025', 
             'description': 'desc', 
             'deadline': datetime.datetime(2025, 1, 1, 0, 0), 
-            'create_time': datetime.datetime(2025, 5, 5, 0, 0), 
+            'create_time': datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time()), 
             'redacted_time': None,
             'priority': TaskPriority.medium, 
             'done': False

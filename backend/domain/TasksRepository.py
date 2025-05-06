@@ -70,7 +70,7 @@ class TasksRepository:
 
         from_name_proiroty, from_name_deadline = self.format_task_name(new_task.name)
 
-        result_priority = from_name_proiroty if from_name_proiroty else TaskPriority.medium
+        result_priority = from_name_proiroty if from_name_proiroty != None else TaskPriority.medium
 
         result_deadline = datetime.combine(from_name_deadline, datetime.min.time()) if from_name_deadline else None
 
@@ -110,20 +110,19 @@ class TasksRepository:
 
             result_priority = task.priority
             result_deadline = task.deadline
-            #TODO: smething strange with extracting priority and deadline from name
-            if edit_data.name != None:
-                from_name_proiroty, from_name_deadline = self.format_task_name(edit_data.name)
-                
-                print(edit_data.name, from_name_proiroty, from_name_deadline)
 
-                if from_name_proiroty:
-                    result_priority = from_name_proiroty
-                
-                if from_name_deadline:
-                    result_deadline = datetime.combine(from_name_deadline, datetime.min.time())
+            from_name_proiroty, from_name_deadline = self.format_task_name(edit_data.name) if edit_data.name != None else (None, None)
 
-            result_priority = edit_data.priority if edit_data.priority != None else result_priority
-            result_deadline = datetime.combine(edit_data.deadline, datetime.min.time()) if edit_data.deadline != None else result_deadline
+            result_priority = from_name_proiroty if from_name_proiroty != None else result_priority
+
+            result_deadline = datetime.combine(from_name_deadline, datetime.min.time()) if from_name_deadline else result_deadline
+
+            if edit_data.priority:
+                result_priority = edit_data.priority
+            
+            if edit_data.deadline:
+                result_deadline = datetime.combine(edit_data.deadline, datetime.min.time())
+
 
             task.priority = result_priority
             task.deadline = result_deadline
