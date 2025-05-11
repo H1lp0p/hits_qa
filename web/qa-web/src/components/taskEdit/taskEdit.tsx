@@ -44,7 +44,7 @@ export const TaskEditComponent : React.FC<TaskEditComponentProps> = (props: Task
         if (deadlineRef.current){
             deadlineRef.current.value = curTask?.task.deadline || ""
         }
-    }, [taskId])
+    }, [curTask])
 
 
 
@@ -64,6 +64,13 @@ export const TaskEditComponent : React.FC<TaskEditComponentProps> = (props: Task
     const handleEdit = () => {
         if (editTask) {
             if (curTask && nameRef.current && descriptionRef.current && doneRef.current && priorityRef.current && deadlineRef.current){
+                var result_priority = priorityRef.current.value != "-1" && toPriority(priorityRef.current.value) != curTask.task.priority ? toPriority(priorityRef.current.value) : null
+                
+                if (priorityRef.current.value != "-1" && toPriority(priorityRef.current.value) != curTask.task.priority){
+                    console.log(priorityRef.current.value, curTask.task.priority);
+                    
+                }
+                
                 editTask({
                     name: nameRef.current.value != curTask.task.name ? nameRef.current.value : null,
                     description: descriptionRef.current.value != curTask.task.description ? descriptionRef.current.value : null,
@@ -111,10 +118,10 @@ export const TaskEditComponent : React.FC<TaskEditComponentProps> = (props: Task
             </div>
             <select name="priority" ref={priorityRef} onChange={() => validationHandler()}>
                 <option value={-1}>-</option>
-                <option value={0}>low</option>
-                <option value={1}>medium</option>
-                <option value={2}>high</option>
-                <option value={3}>critical</option>
+                <option value={3}>low</option>
+                <option value={2}>medium</option>
+                <option value={1}>high</option>
+                <option value={0}>critical</option>
             </select>
             <input type="date" name="deadline" ref={deadlineRef} onChange={() => validationHandler()}></input>
 

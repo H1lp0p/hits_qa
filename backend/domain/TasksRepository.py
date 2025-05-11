@@ -34,8 +34,14 @@ class TasksRepository:
     async def get_list(self, ordering_type: OrderingType, ordering: Ordering, page_size: int = 5, page_num: int = 1) -> Tuple[List[Task], int]:
         query = self.collection.find({})
 
+        result_ordering_type = None
+        if ordering == Ordering.byPriority:
+            result_ordering_type = ASCENDING if ordering_type == OrderingType.descending else DESCENDING
+        if ordering == Ordering.byDeadline:
+            result_ordering_type = ASCENDING if ordering_type == OrderingType.ascending else DESCENDING
+
         query = query.sort("priority" if ordering == Ordering.byPriority else "deadline"
-                   , ASCENDING if ordering_type == OrderingType.ascending else DESCENDING)
+                   , result_ordering_type)
 
         count = await self.collection.count_documents({})
 
@@ -66,24 +72,25 @@ class TasksRepository:
 
         nowTime = date.today()
 
-        from_name_proiroty, from_name_deadline = self.format_task_name(new_task.name)
+        print("repo-create_task-new_task", new_task)
 
-        result_priority = TaskPriority.medium
+        from_name_proiroty, from_name_deadline, new_name = self.format_task_name(new_task.name)
 
-        result_deadline = datetime.combine(new_task.deadline, datetime.min.time()) if new_task.deadline else None
+        result_priority = from_name_proiroty if from_name_proiroty != None else TaskPriority.medium
 
-        if new_task.priority:
+        result_deadline = datetime.combine(from_name_deadline, datetime.min.time()) if from_name_deadline else None
+
+        if new_task.priority != None:
             result_priority = new_task.priority
-        else:
-            if from_name_proiroty:
-                result_priority = from_name_proiroty
         
-        if from_name_deadline:
-            result_deadline = datetime.combine(from_name_deadline, datetime.min.time())
+        if new_task.deadline:
+            result_deadline = datetime.combine(new_task.deadline, datetime.min.time())
         
+        print("repo-create_task-from_name", from_name_proiroty, from_name_deadline)
+        print("repo-create_task-result", result_priority, result_deadline)
 
         task = Task(
-            name=new_task.name,
+            name=new_name,
             description=new_task.description,
             deadline=result_deadline,
             priority=result_priority,
@@ -109,27 +116,29 @@ class TasksRepository:
 
             result_priority = task.priority
             result_deadline = task.deadline
-            #TODO: smething strange with extracting priority and deadline from name
-            if edit_data.name != None:
-                from_name_proiroty, from_name_deadline = self.format_task_name(edit_data.name)
-                
-                print(edit_data.name, from_name_proiroty, from_name_deadline)
 
-                if from_name_proiroty:
-                    result_priority = from_name_proiroty
-                
-                if from_name_deadline:
-                    result_deadline = datetime.combine(from_name_deadline, datetime.min.time())
+            from_name_proiroty, from_name_deadline, new_name = self.format_task_name(edit_data.name) if edit_data.name != None else (None, None, None)
 
-            result_priority = edit_data.priority if edit_data.priority != None else result_priority
-            result_deadline = datetime.combine(edit_data.deadline, datetime.min.time()) if edit_data.deadline != None else result_deadline
+            result_priority = from_name_proiroty if from_name_proiroty != None else result_priority
+
+            result_deadline = datetime.combine(from_name_deadline, datetime.min.time()) if from_name_deadline else result_deadline
+
+            if edit_data.priority  != None:
+                result_priority = edit_data.priority
+            
+            if edit_data.deadline:
+                result_deadline = datetime.combine(edit_data.deadline, datetime.min.time())
+
 
             task.priority = result_priority
             task.deadline = result_deadline
+            task.name = new_name if new_name != None else task.name
 
             await self.collection.replace_one({"_id": ObjectId(id)}, task.model_dump())
             
-            return Mapper.to_task(await self.collection.find_one({"_id": ObjectId(id)}))
+            result_data = await self.collection.find_one({"_id": ObjectId(id)})
+
+            return Mapper.to_task(result_data)
 
         else:
             raise TaskNotFound()
@@ -140,6 +149,8 @@ class TasksRepository:
 
         priority = re.findall(reg_priority, name)
         deadline = re.findall(reg_deadline, name)
+
+        new_name = re.sub(reg_priority, "", re.sub(reg_deadline, "", name))
 
         res_priority = None
         res_deadline = None
@@ -161,4 +172,5 @@ class TasksRepository:
             res_priority = TaskPriority(res_priority - 1)
 
         return (res_priority,
-                res_deadline)
+                res_deadline,
+                new_name)
