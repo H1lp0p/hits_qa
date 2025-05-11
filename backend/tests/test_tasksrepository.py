@@ -103,7 +103,7 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
         self.mock_collection.count_documents = AsyncMock(return_value=1)
 
         await self.repo.get_list(OrderingType.ascending, Ordering.byPriority)
-        mock_query.sort.assert_called_with("priority", 1)
+        mock_query.sort.assert_called_with("priority", -1)
         await self.repo.get_list(OrderingType.descending, Ordering.byDeadline)
         mock_query.sort.assert_called_with("deadline", -1)
 
@@ -119,21 +119,21 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
         fake_id = ObjectId()
         result_task = {
             "_id": str(fake_id),
-            "name": "Test task !2 !before 01.01.2025",
+            "name": "Test task",
             "description": "desc",
             "create_time": str(datetime.datetime.today()),
-            "priority": TaskPriority.medium,
+            "priority": TaskPriority.high,
             "done": False
         }
 
         data_to_insert = {
             'id': None,
-            'name': 'Test task !2 !before 01.01.2025', 
+            'name': 'Test task', 
             'description': 'desc', 
             'deadline': datetime.datetime(2025, 1, 1, 0, 0), 
             'create_time': datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time()), 
             'redacted_time': None,
-            'priority': TaskPriority.medium, 
+            'priority': TaskPriority.high, 
             'done': False
             }
 
@@ -143,14 +143,14 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
         task = await self.repo.create_task(create_model)
 
         self.assertIsInstance(task, Task)
-        self.assertEqual(task.name, create_model.name)
+        self.assertEqual(task.name, result_task["name"])
         self.mock_collection.insert_one.assert_awaited_with(data_to_insert)
         self.mock_collection.find_one.assert_awaited_with({"_id": fake_id})
 
     @patch("common.mapper.Mapper.to_task", side_effect=to_task)
     async def test_create_task_parameters_priority(self, mock_to_task):
         create_model = CreateTaskModel(
-            name="Test task !2 !before 01.01.2025",
+            name="Test task",
             description="desc",
             deadline=datetime.date.today(),
             priority=TaskPriority.critical
@@ -159,7 +159,7 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
 
         result_task = {
             "_id": str(fake_id),
-            "name": "Test task !2 !before 01.01.2025",
+            "name": "Test task",
             "description": "desc",
             "create_time": datetime.datetime.combine(datetime.datetime.today(), datetime.datetime.min.time()),
             "priority": create_model.priority,
@@ -209,7 +209,7 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
 
         edited_task = {
                 "_id": first_task["_id"],
-                "name": "Test task !2 !before 01.01.2025",
+                "name": "Test task",
                 "description": f"desc",
                 "create_time": str(datetime.datetime.today()),
                 "deadline": datetime.datetime(2025, 1, 1, 0, 0),
@@ -225,7 +225,7 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
         task = await self.repo.edit_task(edit_model, fake_id)
 
         self.assertIsInstance(task, Task)
-        self.assertEqual(task.name, edit_model.name)
+        self.assertEqual(task.name, edited_task["name"])
         self.mock_collection.replace_one.assert_awaited()
         self.mock_collection.find_one.assert_awaited_with({"_id": ObjectId(fake_id)})
 
@@ -248,7 +248,7 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
 
         edited_task = {
                 "_id": first_task["_id"],
-                "name": "Test task !2 !before 01.01.2022",
+                "name": "Test task",
                 "description": f"desc",
                 "create_time": str(datetime.datetime.today()),
                 "deadline": datetime.datetime.combine(edit_model.deadline, datetime.datetime.min.time()),
@@ -264,39 +264,66 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
         task = await self.repo.edit_task(edit_model, fake_id)
 
         self.assertIsInstance(task, Task)
-        self.assertEqual(task.name, edit_model.name)
+        self.assertEqual(task.name, edited_task["name"])
         self.mock_collection.replace_one.assert_awaited()
         self.mock_collection.find_one.assert_awaited_with({"_id": ObjectId(fake_id)})
 
-    def test_format_task_name_priority_and_deadline(self):
-        priority, deadline = self.repo.format_task_name("Some task !1 !before 01.01.2025")
-        self.assertEqual(priority, TaskPriority.low)
-        self.assertEqual(deadline, datetime.date(2025, 1, 1))
+    def test_format_task_name_priority(self):
+        priorities = [TaskPriority.low, TaskPriority.medium, TaskPriority.high, TaskPriority.critical]
+        attrs = [
+            (f"task !{int(i) + 1}", i) for i in priorities
+        ] + [
+            (f"task !{5}", None),
+            (f"task !{-1}", None),
+            (f"task!{1}", None)
+        ]
 
-    def test_format_task_name_only_priority(self):
-        priority, deadline = self.repo.format_task_name("Some task !4")
-        self.assertEqual(priority, TaskPriority.critical)
-        self.assertIsNone(deadline)
+        for name, res in attrs:
+            with self.subTest(name=name, res=res):
+                priority, deadline, new_name = self.repo.format_task_name(name)
+                self.assertEqual(priority, res)
 
-    def test_format_task_name_only_deadline(self):
-        priority, deadline = self.repo.format_task_name("Some !before 15-12-2024")
-        self.assertIsNone(priority)
-        self.assertEqual(deadline, datetime.date(2024, 12, 15))
+    def test_format_task_name_deadline(self):
+
+        date = lambda day, month, year: f"{day}.{month}.{year}"
+        date_alt = lambda day, month, year: f"{day}-{month}-{year}"
+
+        attrs = [
+            (f"task !before 01.01.2025", datetime.date(day=1, month=1, year=2025)),
+            (f"task !before 30-01-2025", datetime.date(day=30, month=1, year=2025)),
+            (f"task !beeeefore 01.01.2025", None),
+            (f"task!before 01.01.2025", None),
+            (f"task !before01.01.2025", None),
+            (f"task !before 01:01.2025", None),
+            (f"task !before 011.01.2025", None),
+            (f"task !before 01.01:2025", None),
+            (f"task !before 01:01:2025", None),
+            (f"task !before 01.01.01.2025", None),
+            (f"task !before 01.01.25", None),
+        ]
+
+        for name, res in attrs:
+            with self.subTest(name=name, res=res):
+                priority, deadline, new_name = self.repo.format_task_name(name)
+                self.assertEqual(deadline, res)
 
     def test_format_task_name_no_priority_deadline(self):
-        priority, deadline = self.repo.format_task_name("Just a task")
+        priority, deadline, new_name = self.repo.format_task_name("Just a task")
         self.assertIsNone(priority)
         self.assertIsNone(deadline)
 
     def test_format_task_name_incorrect_deadline(self):
-        with self.assertRaises(ValueError):
-            priority, deadline = self.repo.format_task_name("Just a task !before 32.01.2025")
-
-
-    async def test_get_task_not_found_raises(self):
-        self.mock_collection.find_one = AsyncMock(return_value=None)
-        with self.assertRaises(TaskNotFound):
-            await self.repo.get_task(str(ObjectId()))
+        attrs = [
+            f"task !before 00.01.2025",
+            f"task !before 32.01.2025",
+            f"task !before 05.00.2025",
+            f"task !before 05.13.2025",
+            f"task !before 30.01.0000",
+        ]
+        for name in attrs:
+            with self.subTest(name=name):
+                with self.assertRaises(ValueError):
+                    priority, deadline, new_name = self.repo.format_task_name(name)
 
     async def test_delete_task_success(self):
         task_id = str(ObjectId())
@@ -307,6 +334,11 @@ class TestTasksRepository(unittest.IsolatedAsyncioTestCase):
         self.mock_collection.find_one.assert_awaited_with({"_id": ObjectId(task_id)})
         self.mock_collection.delete_one.assert_awaited_with({"_id": ObjectId(task_id)})
         self.assertTrue(result)
+
+    async def test_get_task_not_found_raises(self):
+        self.mock_collection.find_one = AsyncMock(return_value=None)
+        with self.assertRaises(TaskNotFound):
+            await self.repo.get_task(str(ObjectId()))
 
     async def test_delete_task_not_found_raises(self):
         self.mock_collection.find_one = AsyncMock(return_value=None)

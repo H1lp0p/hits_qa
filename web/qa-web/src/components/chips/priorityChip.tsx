@@ -8,7 +8,7 @@ export interface PriorityChipProps{
 export const PriorityChip : React.FC<PriorityChipProps> = (prop: PriorityChipProps) => {
     const {priority} = prop
 
-    const priorityNaming = ["low", "medium", "high", "critical"]
+    const priorityNaming = ["critical", "high", "medium", "low"]
 
     const priorityString = priorityNaming[priority]
 

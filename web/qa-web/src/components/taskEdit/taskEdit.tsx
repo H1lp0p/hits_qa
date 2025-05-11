@@ -118,10 +118,10 @@ export const TaskEditComponent : React.FC<TaskEditComponentProps> = (props: Task
             </div>
             <select name="priority" ref={priorityRef} onChange={() => validationHandler()}>
                 <option value={-1}>-</option>
-                <option value={0}>low</option>
-                <option value={1}>medium</option>
-                <option value={2}>high</option>
-                <option value={3}>critical</option>
+                <option value={3}>low</option>
+                <option value={2}>medium</option>
+                <option value={1}>high</option>
+                <option value={0}>critical</option>
             </select>
             <input type="date" name="deadline" ref={deadlineRef} onChange={() => validationHandler()}></input>
 
