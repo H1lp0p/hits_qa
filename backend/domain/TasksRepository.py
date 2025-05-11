@@ -58,7 +58,6 @@ class TasksRepository:
         res = await self.collection.find_one({"_id": ObjectId(id)})
         if not res:
             raise TaskNotFound()
-        print(res)
         task = Mapper.to_task(res)
         return task
 
@@ -72,8 +71,6 @@ class TasksRepository:
 
         nowTime = date.today()
 
-        print("repo-create_task-new_task", new_task)
-
         from_name_proiroty, from_name_deadline, new_name = self.format_task_name(new_task.name)
 
         result_priority = from_name_proiroty if from_name_proiroty != None else TaskPriority.medium
@@ -86,9 +83,6 @@ class TasksRepository:
         if new_task.deadline:
             result_deadline = datetime.combine(new_task.deadline, datetime.min.time())
         
-        print("repo-create_task-from_name", from_name_proiroty, from_name_deadline)
-        print("repo-create_task-result", result_priority, result_deadline)
-
         task = Task(
             name=new_name,
             description=new_task.description,
@@ -106,7 +100,6 @@ class TasksRepository:
     async def edit_task(self, edit_data: EditTaskModel, id: str) -> Task:
         mongo_data = await self.collection.find_one({"_id": ObjectId(id)})
         if mongo_data:
-            print(f"mongo>> {mongo_data}")
             task = Mapper.to_task(mongo_data)
 
             task.name = edit_data.name if edit_data.name != None else task.name
@@ -167,7 +160,6 @@ class TasksRepository:
                 raise ValueError(f"incorrect date in task name {deadline[0][1]}")
 
         if len(priority) > 0:
-            print(priority)
             res_priority = int(priority[0][1])
             res_priority = TaskPriority(res_priority - 1)
 

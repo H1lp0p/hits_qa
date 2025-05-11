@@ -1,8 +1,10 @@
 from os import environ
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import motor.motor_asyncio
 import uvicorn
+
+from typing import Annotated
 
 from domain.TasksRepository import *
 from data import *
@@ -51,11 +53,18 @@ app.add_middleware(
 
 app.middleware("http")(error_handler)
 
+def get_tasks_repository() -> TasksRepository:
+    mongodb_client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URI)
+    repo = TasksRepository(mongodb_client, DATABASE, COLLECTION)
+
+    return repo
+
+
 @app.get(
         "/tasks/all",
         response_model=List[TaskInfo])
-async def get_all_tasks():
-    return await app.TasksRepository.get_all()
+async def get_all_tasks(repo: TasksRepository = Depends(get_tasks_repository)):
+    return await repo.get_all()
 
 
 @app.get(
@@ -67,8 +76,9 @@ async def get_tasks_list(
     ordering_type: OrderingType = OrderingType.ascending,
     page: int = 1,
     page_size: int = 5,
+    repo: TasksRepository = Depends(get_tasks_repository)
 ):
-    task, count = await app.TasksRepository.get_list(
+    task, count = await repo.get_list(
         ordering_type,
         ordering,
         page_size,
@@ -91,25 +101,24 @@ async def get_tasks_list(
 @app.get(
         "/tasks/{id}",
          response_model=TaskInfo)
-async def get_task(id: str):
-    task = await app.TasksRepository.get_task(id)
-    print(task)
+async def get_task(id: str, repo: TasksRepository = Depends(get_tasks_repository)):
+    task = await repo.get_task(id)
     return Mapper.to_info(task)
 
 
 @app.post(
         "/tasks",
         response_model=TaskInfo)
-async def create_task(new_task: CreateTaskModel):
-    task = await app.TasksRepository.create_task(new_task)
+async def create_task(new_task: CreateTaskModel, repo: TasksRepository = Depends(get_tasks_repository)):
+    task = await repo.create_task(new_task)
     return Mapper.to_info(task)
 
 
 @app.delete(
         "/tasks/{id}"
         )
-async def delete_task(id: str):
-    result = await app.TasksRepository.delete_task(id)
+async def delete_task(id: str, repo: TasksRepository = Depends(get_tasks_repository)):
+    result = await repo.delete_task(id)
     return result
 
 
@@ -117,8 +126,8 @@ async def delete_task(id: str):
         "/tasks/{id}",
         response_model=TaskInfo
         )
-async def edit_task(id: str, edit_model: EditTaskModel):
-    result = await app.TasksRepository.edit_task(edit_model, id)
+async def edit_task(id: str, edit_model: EditTaskModel, repo: TasksRepository = Depends(get_tasks_repository)):
+    result = await repo.edit_task(edit_model, id)
     return Mapper.to_info(result)
 
 
