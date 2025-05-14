@@ -49,6 +49,15 @@ test('test', async ({ page }) => {
     await expect(page.getByText(`${new_unique} 1234 edited`).locator("..")).toContainText('overdue');
   })
 
+    //checking LATE (need to check color)
+  await test.step("checking late", async () => {
+
+    await page.getByRole('button', { name: 'Edit' }).click();
+    await page.getByRole('checkbox', { name: 'Done?' }).check();
+    await expect(page.getByText(`${new_unique} 1234 edited`).locator("..")).toHaveCSS("background-color", "rgb(194, 62, 33)")
+    await expect(page.getByText(`${new_unique} 1234 edited`).locator("..")).toContainText('overdue');
+  })
+
   //checking COMPLETE (need to check color)
   await test.step("checking COMPLETE", async () => {
     await page.getByRole('checkbox', { name: 'Done?' }).check();
