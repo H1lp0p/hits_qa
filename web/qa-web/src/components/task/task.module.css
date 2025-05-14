@@ -1,9 +1,9 @@
 :root{
     --text-color: #282B28;
     --task: #83BCA9;
-    --task-selected: #88b98e;
-    --task-outdated: #A24936;
-    --task-fire: #D36135; 
+    --task-selected: rgb(136, 185, 142);
+    --task-outdated: rgb(194, 62, 33);
+    --task-fire: rgb(211, 127, 53); 
 }
 
 .task{
