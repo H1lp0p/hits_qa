@@ -17,10 +17,10 @@ class TaskStatus(str, Enum):
 
 
 class TaskPriority(IntEnum):
-    low = 0
-    medium = 1
-    high = 2
-    critical = 3
+    low = 3
+    medium = 2
+    high = 1
+    critical = 0
 
 
 class Task(BaseModel):
