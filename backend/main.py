@@ -66,6 +66,10 @@ def get_tasks_repository() -> TasksRepository:
 async def get_all_tasks(repo: TasksRepository = Depends(get_tasks_repository)):
     return await repo.get_all()
 
+@app.post("/test/clear")
+async def clear_db(repo: TasksRepository = Depends(get_tasks_repository)):
+    await repo.clear_db()
+    return True
 
 @app.get(
         "/tasks/list",

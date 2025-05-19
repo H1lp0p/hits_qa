@@ -31,6 +31,9 @@ class TasksRepository:
 
         return lst
     
+    async def clear_db(self):
+        await self.collection.delete_many({})
+
     async def get_list(self, ordering_type: OrderingType, ordering: Ordering, page_size: int = 5, page_num: int = 1) -> Tuple[List[Task], int]:
         query = self.collection.find({})
 
